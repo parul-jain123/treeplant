@@ -382,7 +382,7 @@ const AdminPage = () => {
   
     try {
       const response = await axios.post("http://localhost:4000/api/product", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { "Content-Type": "application/json" },
       });
   
       if (response.status === 200 || response.status === 201) {
