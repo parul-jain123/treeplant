@@ -6,41 +6,47 @@ import cookieParser from "cookie-parser";
 import userRoutes from "./routes/userroutes.js";
  import Auth from './routes/auth.js';
  import Contact from './routes/contact.js';
-import Product from "./models/Product.js";
+ import multer from "multer";
+// import Product from "./models/Product.js";
 //import { addProduct } from "./controllers/product/product.js";
 //import Products from "../src/pages/ProductsPage.js";
  import productRouter from"./routes/productRouter.js"
 import admin from "./routes/admin.js"
 
-
+import path from "path";
 
 const app = express();
 dotenv.config();
 const port = process.env.PORT || 4000;  // Change to a different port, like 5001
+ const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // Specify the destination folder where images will be stored
+    cb(null, 'public/image');
+  },
+  filename: (req, file, cb) => {
+    // Set the file name to include the original name and extension
+    cb(null,file.fieldname+ Date.now() + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage });
+
+// // Middleware to serve static files (optional)
+// app.use(express.static('uploads'));
+app.use('/uploads', express.static('uploads'));
+
+// Create the upload route (POST request)
+app.post('/upload', upload.single('img'), (req, res) => {
+  // Check if file is uploaded
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+  res.send({
+    message: 'File uploaded successfully!',
+    file: req.file
+  });
+});
 
 
-
-// // importing mysql module
-// import mysql from 'mysql'
-
-// // configurations for creating mysql connection
-// const connection = mysql.createConnection({
-//     host: 'localhost',     // host for connection
-//     port: 3306,            // default port for mysql is 3306
-//     database: 'test',      // database from which we want to connect our node application
-//     user: 'root',          // username of the mysql connection
-//     password: 'root'       // password of the mysql connection
-// });
-
-// executing connection
-// connection.connect(function(err) {
-//     if (err) {
-//         console.log("error occurred while connecting");
-//     } else {
-//         console.log("connection created with mysql successfully");
-//     }
-// });
-// Database connection
  connectDB();
 
 // Middleware
@@ -50,7 +56,9 @@ app.use(cookieParser())
 
 // Import routes
 
-
+app.post('/upload',(req,res)=>{
+ console.log(req.img)
+})
 
 // Use routes
 app.use("/contact",Contact)
